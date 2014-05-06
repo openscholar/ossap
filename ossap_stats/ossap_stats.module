@@ -60,7 +60,7 @@ function ossap_stats_menu() {
 }
 
 /*
-* os_board_settings_form
+* ossap_stats_settings_form
 * parameters : form_state
 * creates an admin form for os_board for admins to
 * enter the data for activating Google Analytics 
