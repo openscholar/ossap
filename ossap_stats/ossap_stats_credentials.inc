@@ -52,14 +52,13 @@ function ossap_stats_check_credentials(){
 function ossap_stats_design_output($type){
     //variables definition block starts
     $output ='';
-	$app_name = 'OS Board';
+	$app_name = 'OSSAP Statistics';
 	$metrics_pageviews = 'ga:pageviews';
     $metrics_visits = 'ga:visits';
     $sort_pageviews = '-ga:pageviews';
     $sort_visits = '-ga:visits';
-    $dimensions = 'ga:hostname';
-	$start_date = '2014-04-20' ;
-	$end_date = '2014-05-07'  ;
+    $start_date = '2014-04-20' ;
+	$end_date = '2014-05-10'  ;
 	
     $max_results = 5;
     //get credentials 
@@ -67,11 +66,12 @@ function ossap_stats_design_output($type){
     if ($type == 'visits'){
         $sort = $sort_visits;
         $metrics = $metrics_visits;
+		$dimensions = 'ga:hostname';
      }
     else {
         $sort = $sort_pageviews;
         $metrics = $metrics_pageviews;
-        $dimensions = 'ga:hostname,ga:pagePath';
+		$dimensions = 'ga:hostname,ga:pagePath';
     }
 
     //set optional parameters like sort, dimensions etc
