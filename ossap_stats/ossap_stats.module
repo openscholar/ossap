@@ -140,10 +140,12 @@ function ossap_stats_load_includes(){
 
 /**
 * ossap_stats_visited_sites()
-* no parameters. returns most frequently visited sites
+* parameter = $output_json
+* default value for the parameter is false
+* returns most frequently visited sites
 */
 function ossap_stats_visited_sites($output_json = FALSE){
-  
+  //check if the $output_json is true
   if($output_json) {
     //return output as a json object;
     drupal_json_output(variable_get('visited_sites_in_day',array()));
@@ -153,18 +155,16 @@ function ossap_stats_visited_sites($output_json = FALSE){
   }
   //load the includes
   ossap_stats_load_includes();
-
-  //portals list which should be avoided in the output
-  $portals = array('dev.hwpi.harvard.edu','dev.projects.iq.harvard.edu','dev.scholar.harvard.edu',
-                   'hwpi.harvard.edu','projects.iq.harvard.edu', 'scholar.harvard.edu',
-	           'staging.hwpi.harvard.edu','staging.projects.iq.harvard.edu','staging.scholar.harvard.edu');
+  
  //get results from the design_output function by sending the parameter of type = visits
   $results = ossap_stats_design_output('sites'); 
   
-  $rows_day = ossap_stats_add_sites_links($results, $portals, 'day');
-  $rows_week = ossap_stats_add_sites_links($results, $portals, 'week');
-  $rows_month = ossap_stats_add_sites_links($results, $portals, 'month');
+  //convert all the portals for each interval period to links
+  $rows_day = ossap_stats_add_sites_links($results, 'day');
+  $rows_week = ossap_stats_add_sites_links($results, 'week');
+  $rows_month = ossap_stats_add_sites_links($results, 'month');
 
+  //add all the day for each interval to the $rows array
   $rows = array(
     'day' => $rows_day,
     'week' => $rows_week,
@@ -174,8 +174,23 @@ function ossap_stats_visited_sites($output_json = FALSE){
   return $rows;
 }
 
-function ossap_stats_add_sites_links($results, $portals, $interval){
-  foreach($results[$interval] as $result) {
+/**
+* ossap_stats_add_sites_links
+* parameters : $results, $interval
+* $results: array containing links for the $interval period
+* returns:  the portals, which are converted to links
+* and the count of viewers
+*/
+function ossap_stats_add_sites_links($results,$interval){
+  //portals list which should be avoided in the output
+  $portals = array('dev.hwpi.harvard.edu','dev.projects.iq.harvard.edu','dev.scholar.harvard.edu',
+                   'hwpi.harvard.edu','projects.iq.harvard.edu', 'scholar.harvard.edu',
+                   'staging.hwpi.harvard.edu','staging.projects.iq.harvard.edu','staging.scholar.harvard.edu');
+   //retrieve the value for 'rows' key
+  $rowsVar = 'rows';
+  
+  //check each portal and convert into link
+  foreach($results[$interval][$rowsVar] as $result) {
     $domain = $result[0];
     $domainUrl = 'http://'.$domain;
     $userCount = $result[1];
@@ -187,6 +202,7 @@ function ossap_stats_add_sites_links($results, $portals, $interval){
     }
   }
   
+  //return the data(links and views) as an array
   return $rows;
 }
 
@@ -210,10 +226,12 @@ function ossap_stats_viewed_pages($output_json = FALSE){
   //get results from the design_output function by sending the parameter of type = pageviews
   $results = ossap_stats_design_output('pages');
 
+  //convert all the portals for each interval period to links
   $rows_day = ossap_stats_add_pages_links($results, 'day');
   $rows_week = ossap_stats_add_pages_links($results, 'week');
   $rows_month = ossap_stats_add_pages_links($results, 'month');
 
+  //add all the day for each interval to the $rows array
   $rows = array(
     'day' => $rows_day,
     'week' => $rows_week,
@@ -224,8 +242,18 @@ function ossap_stats_viewed_pages($output_json = FALSE){
   return $rows; 
 }
 
+/**
+* ossap_stats_add_pages_links
+* parameters : $results, $interval
+* $results: array containing links for the $interval period
+* returns: array of (the portals, which are converted to links
+* and the count of viewers)
+*/
 function ossap_stats_add_pages_links($results, $interval){
-  foreach($results[$interval] as $result) {
+  //retrieve the value for 'rows' key
+  $rowsVar = 'rows';
+  //check each portal and convert into link
+  foreach($results[$interval][$rowsVar] as $result) {
     $domain = $result[0];
     $pageViews = $result[1];
     $userCount = $result[2];
@@ -461,9 +489,7 @@ function ossap_stats_cron() {
   $queue = DrupalQueue::get('ossap_stats_queue');
   $queue->createQueue();
   // Add an array key as a new cron job key
-  $stats = array('sites', 'getsatisfaction', 'activity', 
-                 'visited_sites_in_day', 'visited_sites_in_week', 'visited_sites_in_month',
-                 'viewed_pages_in_day', 'viewed_pages_in_week', 'viewed_pages_in_month');
+  $stats = array('sites', 'getsatisfaction', 'activity', 'visited_sites', 'viewed_pages');
   foreach ($stats as $stat) {
     $queue->createItem($stat);
   }
@@ -485,23 +511,11 @@ function ossap_stats_block_worker($stat = '') {
       break;
     // Add a case statement in the cron worker function for
     //for most_visited_sites, most_viewed_pages and real_time visitors
-    case 'visited_sites_in_day':
-      ossap_stats_most_visited_sites_cron_worker('day');
+    case 'visited_sites':
+      ossap_stats_most_visited_sites_cron_worker();
       break;
-    case 'visited_sites_in_week':
-      ossap_stats_most_visited_sites_cron_worker('week');
-      break;
-    case 'visited_sites_in_month':
-      ossap_stats_most_visited_sites_cron_worker('month');
-      break;
-    case 'viewed_pages_in_day':
-      ossap_stats_most_viewed_pages_cron_worker('day');
-      break;
-    case 'viewed_pages_in_week':
-      ossap_stats_most_viewed_pages_cron_worker('week');
-      break;
-    case 'viewed_pages_in_month':
-      ossap_stats_most_viewed_pages_cron_worker('month');
+    case 'viewed_pages':
+      ossap_stats_most_viewed_pages_cron_worker();
       break;
     /*  
     case 'rt_visitors':
@@ -514,7 +528,7 @@ function ossap_stats_block_worker($stat = '') {
 /**
  * Cron worker callback for OSSAP most_visited_sites
  */
-function ossap_stats_most_visited_sites_cron_worker($interval){
+function ossap_stats_most_visited_sites_cron_worker(){
   $function = 'ossap_stats_visited_sites';
   if (!function_exists($function)) {
     return;
@@ -522,22 +536,16 @@ function ossap_stats_most_visited_sites_cron_worker($interval){
   
   $most_visited_sites = $function();
   if (!empty($most_visited_sites)) {
-    if ($interval == 'day'){
-      variable_set('visited_sites_in_day', $most_visited_sites['day']);
-    }
-    else if ($interval == 'week'){
-      variable_set('visited_sites_in_week', $most_visited_sites['week']);
-    }
-    else if ($interval == 'month'){
-      variable_set('visited_sites_in_month', $most_visited_sites['month']);
-    }
+    variable_set('visited_sites_in_day', $most_visited_sites['day']);
+    variable_set('visited_sites_in_week', $most_visited_sites['week']);
+    variable_set('visited_sites_in_month', $most_visited_sites['month']);
   }
 }
 
 /**
  * Cron worker callback for OSSAP most_viewed_sites
  */
-function ossap_stats_most_viewed_pages_cron_worker($interval){
+function ossap_stats_most_viewed_pages_cron_worker(){
   $function = 'ossap_stats_viewed_pages';
   if (!function_exists($function)) {
     return;
@@ -545,15 +553,9 @@ function ossap_stats_most_viewed_pages_cron_worker($interval){
   
   $most_viewed_pages = $function();
   if (!empty($most_viewed_pages)) {
-    if ($interval == 'day'){
-      variable_set('viewed_pages_in_day', $most_viewed_pages['day']);
-    }
-    else if ($interval == 'week'){
-      variable_set('viewed_pages_in_week', $most_viewed_pages['week']);
-    }
-    else if ($interval == 'month'){
-      variable_set('viewed_pages_in_month', $most_viewed_pages['month']);
-    }
+    variable_set('viewed_pages_in_day', $most_viewed_pages['day']);
+    variable_set('viewed_pages_in_week', $most_viewed_pages['week']);
+    variable_set('viewed_pages_in_month', $most_viewed_pages['month']);
   }
 }
 
