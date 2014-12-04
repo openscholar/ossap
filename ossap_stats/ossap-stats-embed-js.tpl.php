@@ -87,24 +87,50 @@ if (empty($aggregates)) {
  */
 function ossapRealtimeStatsRefresh() {
   var realtimeUrl = '/ossap/real-time-visitors';
-  var updateInterval = 1500;
+  var updateInterval = 2000;
   var fetchInterval = 15000;
   var realtimeDivId = ".ossap-stats-real-time-visitors";
-  
-  setInterval(function(){ 
+  var weeklyVisitorsDivId = ".ossap-stats-weekly-visitors";
+  var monthlyVisitorsDivId = ".ossap-stats-monthly-visitors";
+  var weeklyPageViewsDivId = ".ossap-stats-weekly-pv";
+  var monthlyPageViewsDivId = ".ossap-stats-monthly-pv";
+
+  setInterval(function(){
     fetchInterval = fetchInterval - updateInterval;
     if(fetchInterval < 0) {
       $.getJSON(realtimeUrl, function( data ) {
-        $(realtimeDivId).text(data);
+        $(realtimeDivId).text(data[0]);
+        $(weeklyVisitorsDivId).text(data[1]);
+        $(monthlyVisitorsDivId).text(data[2]);
+        $(weeklyPageViewsDivId).text(data[3]);
+        $(monthlyPageViewsDivId).text(data[4]);
+
+        var d = new Date();
+        var n = d.getHours() + 1;
+        var Vinterval = (parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24) * n;
+        var PVinterval = (parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24) * n;
+
+        $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text(), 10) + Vinterval);
+        $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text(), 10) + Vinterval);
+        $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text(), 10) + PVinterval);
+        $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text(), 10) + PVinterval);
       });
       fetchInterval = 15000;
     } else {
       // Add random -10 to 10 people.
       var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
       $(realtimeDivId).text(parseInt($(realtimeDivId).text(), 10) + Math.floor(Math.random() * plusOrMinus));
+
+      var Vinterval = parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24 / 60 / 30;
+      var PVinterval = parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24 / 60 / 30;
+
+      $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text(), 10) + Vinterval);
+      $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text(), 10) + Vinterval);
+      $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text(), 10) + PVinterval);
+      $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text(), 10) + PVinterval);
     }
   }, updateInterval);
-  
+
 }
 
 (function(){
