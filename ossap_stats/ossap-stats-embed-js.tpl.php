@@ -58,6 +58,22 @@ if (isset($rt_visitors) && !empty($rt_visitors)) {
   $aggregates['real-time-visitors'] = $rt_visitors;
 }
 
+if (isset($rt_visitors_week) && !empty($rt_visitors_week)) {
+  $aggregates['weekly-visitors'] = $rt_visitors_week;
+}
+
+if (isset($rt_visitors_month) && !empty($rt_visitors_month)) {
+  $aggregates['monthly-visitors'] = $rt_visitors_month;
+}
+
+if (isset($rt_pageview_week) && !empty($rt_pageview_week)) {
+  $aggregates['weekly-pv'] = $rt_pageview_week;
+}
+
+if (isset($rt_pageview_month) && !empty($rt_pageview_month)) {
+  $aggregates['monthly-pv'] = $rt_pageview_month;
+}
+
 ?>
 /**
  * Include this JS file to embed aggregated OpenScholar SAP stats on any page.

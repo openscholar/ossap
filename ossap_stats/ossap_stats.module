@@ -371,6 +371,10 @@ function ossap_stats_theme() {
         'viewed_pages_in_week' => NULL,
         'viewed_pages_in_month' => NULL,
         'rt_visitors' => NULL,
+        'rt_visitors_week' => NULL,
+        'rt_visitors_month' => NULL,
+        'rt_pageview_week' => NULL,
+        'rt_pageview_month' => NULL,
       ),
       'template' => 'ossap-stats-embed-js',
     ),
@@ -474,6 +478,10 @@ function _ossap_stats_embed_js($stat) {
 
   // Prepares any available real time visitors statistics.
   $real_time_visitors = current(variable_get('rt_visitors', array()));
+  $real_time_week = current(variable_get('rt_visitors_week', array()));
+  $real_time_month = current(variable_get('rt_visitors_month', array()));
+  $pv_time_week = current(variable_get('rt_pageview_week', array()));
+  $pv_time_month = current(variable_get('rt_pageview_month', array()));
 
   // Prepares the activity messages.
   $messages = '';
@@ -501,6 +509,10 @@ function _ossap_stats_embed_js($stat) {
     'viewed_pages_in_week' => $most_viewed_pages_in_week,
     'viewed_pages_in_month' => $most_viewed_pages_in_month,
     'rt_visitors' => $real_time_visitors,
+    'rt_visitors_week' => $real_time_visitors,
+    'rt_visitors_month' => $real_time_visitors,
+    'rt_pageview_week' => $pv_time_week,
+    'rt_pageview_month' => $pv_time_month,
   );
    print theme('ossap_stats_embed_js', $variables);
    exit;
