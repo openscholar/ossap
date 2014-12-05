@@ -333,7 +333,7 @@ function ossap_stats_rt_visitors($output_json = FALSE){
       $rt_stats_week = array_merge(array(" ".time() => $results['week']['rows'][0][0]),$rt_stats_week);
       variable_set('rt_visitors_week', array_slice($rt_stats_week, 0, 15, true));
       $rt_stats_month = array_merge(array(" ".time() => $results['month']['rows'][0][0]),$rt_stats_month);
-      variable_set('rt_visitors_week', array_slice($rt_stats_month, 0, 15, true));
+      variable_set('rt_visitors_month', array_slice($rt_stats_month, 0, 15, true));
       $rt_pv_week = array_merge(array(" ".time() => $results['week']['rows'][0][1]),$rt_pv_week);
       variable_set('rt_pageview_week', array_slice($rt_pv_week, 0, 15, true));
       $rt_pv_month = array_merge(array(" ".time() => $results['month']['rows'][0][1]),$rt_pv_month);

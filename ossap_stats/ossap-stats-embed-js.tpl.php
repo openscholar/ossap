@@ -107,8 +107,8 @@ function ossapRealtimeStatsRefresh() {
 
         var d = new Date();
         var n = d.getHours() + 1;
-        var Vinterval = (parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24) * n;
-        var PVinterval = (parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24) * n;
+        var Vinterval = Math.floor((parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24) * n);
+        var PVinterval = Math.floor((parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24) * n);
 
         $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text(), 10) + Vinterval);
         $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text(), 10) + Vinterval);
@@ -121,8 +121,8 @@ function ossapRealtimeStatsRefresh() {
       var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
       $(realtimeDivId).text(parseInt($(realtimeDivId).text(), 10) + Math.floor(Math.random() * plusOrMinus));
 
-      var Vinterval = parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24 / 60 / 30;
-      var PVinterval = parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24 / 60 / 30;
+      var Vinterval = Math.floor(parseInt($(weeklyVisitorsDivId).text(), 10) / 7 / 24 / 60 / 30);
+      var PVinterval = Math.floor(parseInt($(weeklyPageViewsDivId).text(), 10) / 7 / 24 / 60 / 30);
 
       $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text(), 10) + Vinterval);
       $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text(), 10) + Vinterval);
