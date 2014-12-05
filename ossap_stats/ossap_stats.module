@@ -509,8 +509,8 @@ function _ossap_stats_embed_js($stat) {
     'viewed_pages_in_week' => $most_viewed_pages_in_week,
     'viewed_pages_in_month' => $most_viewed_pages_in_month,
     'rt_visitors' => $real_time_visitors,
-    'rt_visitors_week' => $real_time_visitors,
-    'rt_visitors_month' => $real_time_visitors,
+    'rt_visitors_week' => $real_time_week,
+    'rt_visitors_month' => $real_time_month,
     'rt_pageview_week' => $pv_time_week,
     'rt_pageview_month' => $pv_time_month,
   );
