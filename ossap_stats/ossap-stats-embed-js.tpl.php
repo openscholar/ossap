@@ -123,7 +123,7 @@ function ossapRealtimeStatsRefresh() {
 
         var d = new Date();
         var n = d.getHours() + 1;
-        n = n + ((d.getMinutes() + 1) / 60);
+        n = n + ((d.getMinutes() + 1 + ((d.getSeconds() + 1) / 60)) / 60);
         var Vinterval = Math.floor((parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) / 7 / 24) * n);
         var PVinterval = Math.floor((parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) / 7 / 24) * n);
 
