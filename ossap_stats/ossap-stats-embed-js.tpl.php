@@ -116,34 +116,34 @@ function ossapRealtimeStatsRefresh() {
     if(fetchInterval < 0) {
       $.getJSON(realtimeUrl, function( data ) {
         $(realtimeDivId).text(data[0]);
-        $(weeklyVisitorsDivId).text(data[1]);
-        $(monthlyVisitorsDivId).text(data[2]);
-        $(weeklyPageViewsDivId).text(data[3]);
-        $(monthlyPageViewsDivId).text(data[4]);
+        $(weeklyVisitorsDivId).text(data[1]).OSAddCommas();
+        $(monthlyVisitorsDivId).text(data[2]).OSAddCommas();
+        $(weeklyPageViewsDivId).text(data[3]).OSAddCommas();
+        $(monthlyPageViewsDivId).text(data[4]).OSAddCommas();
 
         var d = new Date();
         var n = d.getHours() + 1;
-        var Vinterval = Math.floor((parseInt($(weeklyVisitorsDivId).text().replace(',', ''), 10) / 7 / 24) * n);
-        var PVinterval = Math.floor((parseInt($(weeklyPageViewsDivId).text().replace(',', ''), 10) / 7 / 24) * n);
+        var Vinterval = Math.floor((parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) / 7 / 24) * n);
+        var PVinterval = Math.floor((parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) / 7 / 24) * n);
 
-        $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text().replace(',', ''), 10) + Vinterval);
-        $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text().replace(',', ''), 10) + Vinterval);
-        $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text().replace(',', ''), 10) + PVinterval);
-        $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text().replace(',', ''), 10) + PVinterval);
+        $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) + Vinterval).OSAddCommas();
+        $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text().replace(/,/g, ''), 10) + Vinterval).OSAddCommas();
+        $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) + PVinterval).OSAddCommas();
+        $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text().replace(/,/g, ''), 10) + PVinterval).OSAddCommas();
       });
       fetchInterval = 15000;
     } else {
       // Add random -10 to 10 people.
       var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
-      $(realtimeDivId).text(parseInt($(realtimeDivId).text().replace(',', ''), 10) + Math.floor(Math.random() * plusOrMinus));
+      $(realtimeDivId).text(parseInt($(realtimeDivId).text().replace(/,/g, ''), 10) + Math.floor(Math.random() * plusOrMinus)).OSAddCommas();
 
-      var Vinterval = Math.floor(parseInt($(weeklyVisitorsDivId).text().replace(',', ''), 10) / 7 / 24 / 60 / 30);
-      var PVinterval = Math.floor(parseInt($(weeklyPageViewsDivId).text().replace(',', ''), 10) / 7 / 24 / 60 / 30);
+      var Vinterval = Math.floor(parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) / 7 / 24 / 60 / 30);
+      var PVinterval = Math.floor(parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) / 7 / 24 / 60 / 30);
 
-      $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text().replace(',', ''), 10) + Vinterval);
-      $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text().replace(',', ''), 10) + Vinterval);
-      $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text().replace(',', ''), 10) + PVinterval);
-      $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text().replace(',', ''), 10) + PVinterval);
+      $(weeklyVisitorsDivId).text(parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) + Vinterval).OSAddCommas();
+      $(monthlyVisitorsDivId).text(parseInt($(monthlyVisitorsDivId).text().replace(/,/g, ''), 10) + Vinterval).OSAddCommas();
+      $(weeklyPageViewsDivId).text(parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) + PVinterval).OSAddCommas();
+      $(monthlyPageViewsDivId).text(parseInt($(monthlyPageViewsDivId).text().replace(/,/g, ''), 10) + PVinterval).OSAddCommas();
     }
   }, updateInterval);
 
@@ -163,6 +163,12 @@ function ossapRealtimeStatsRefresh() {
   }
 
 <? endforeach; ?>
+
+$.fn.OSAddCommas = function(){
+    return this.each(function(){
+        $(this).text( $(this).text().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") );
+    })
+}
 
 ossapRealtimeStatsRefresh();
 })();
