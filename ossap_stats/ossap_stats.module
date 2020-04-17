@@ -32,6 +32,14 @@ function ossap_stats_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['ossap/stats-uva.js'] = array(
+    'title' => t('OpenScholar Stats UVA'),
+    'page callback' => '_ossap_stats_uva_embed_js',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['ossap/most-viewed-pages'] = array(
     'title' => t('OpenScholar Board - Most Viewed Pages'),
     'type' => MENU_CALLBACK,
@@ -63,6 +71,16 @@ function ossap_stats_menu() {
     'weight' => -5,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ossap_stats_settings_form'),
+    'access arguments' => array('administer content'),
+  );
+
+  $items['admin/config/ossap_stats_uva_settings'] = array(
+    'title' => 'OSSA - OpenScholar Stats UVA Settings',
+    'description' => 'Administer OpenScholar Stats UVA specific settings.',
+    'position' => 'left',
+    'weight' => -5,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ossap_stats_uva_settings_form'),
     'access arguments' => array('administer content'),
   );
 
@@ -129,6 +147,65 @@ function ossap_stats_settings_form($form_state){
 }
 
 /**
+* ossap_stats_uva_settings_form
+* parameters : form_state
+* creates an admin form for ossap_stats for admins to
+* enter the data for activating Google Analytics
+*/
+function ossap_stats_uva_settings_form($form_state){
+  $form = array();
+
+  $form['ossap_stats_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Enter OS Stats UVA settings details here'),
+    '#weight' => 0,
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['ossap_stats_settings']['ossap_stats_uva_private_key_file_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Private Key Filename'),
+    '#default_value' => variable_get('ossap_stats_uva_private_key_file_name',""),
+    '#description' => t('Add Private Key File Name here'),
+  );
+
+  $form['ossap_stats_settings']['ossap_stats_uva_private_key_path_to_file'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to private Key'),
+    '#required' => TRUE,
+    '#description' => t('Add Path to the Private Key here'),
+    '#default_value' => variable_get('ossap_stats_uva_private_key_path_to_file',""),
+    );
+
+  $form['ossap_stats_settings']['ossap_stats_uva_client_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Client Id'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('ossap_stats_uva_client_id',""),
+    '#description' => t('Add Client Id here'),
+  );
+
+  $form['ossap_stats_settings']['ossap_stats_uva_service_gmail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Service Gmail'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('ossap_stats_uva_service_gmail',""),
+    '#description' => t('Add Service Account Gmail here'),
+   );
+
+   $form['ossap_stats_settings']['ossap_stats_uva_analytics_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Analytics Id'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('ossap_stats_uva_analytics_id'),
+    '#description' => t('Add Analytics Id here'),
+   );
+
+  return system_settings_form($form);
+}
+
+/**
 * ossap_stats_load_includes
 * include all the required files via module_load_include
 */
@@ -144,7 +221,7 @@ function ossap_stats_load_includes(){
 * default value for the parameter is false
 * returns most frequently visited sites
 */
-function ossap_stats_visited_sites($output_json = FALSE){
+function ossap_stats_visited_sites($output_json = FALSE, $context = 'default'){
   //check if the $output_json is true
   if($output_json) {
     //return output as a json object;
@@ -157,7 +234,7 @@ function ossap_stats_visited_sites($output_json = FALSE){
   ossap_stats_load_includes();
 
  //get results from the design_output function by sending the parameter of type = visits
-  $results = ossap_stats_design_output('sites');
+  $results = ossap_stats_design_output('sites', $context);
 
   //convert all the portals for each interval period to links
   $rows_day = ossap_stats_add_sites_links($results, 'day');
@@ -210,7 +287,7 @@ function ossap_stats_add_sites_links($results,$interval){
 * ossap_stats_viewed_pages()
 * no parameters. returns most frequently viewed pages
 */
-function ossap_stats_viewed_pages($output_json = FALSE){
+function ossap_stats_viewed_pages($output_json = FALSE, $context = 'default'){
 
   //return output as a json object from the variable.
   if($output_json) {
@@ -224,7 +301,7 @@ function ossap_stats_viewed_pages($output_json = FALSE){
   ossap_stats_load_includes();
 
   //get results from the design_output function by sending the parameter of type = pageviews
-  $results = ossap_stats_design_output('pages');
+  $results = ossap_stats_design_output('pages', $context);
 
   //convert all the portals for each interval period to links
   $rows_day = ossap_stats_add_pages_links($results, 'day');
@@ -519,6 +596,68 @@ function _ossap_stats_embed_js($stat) {
 }
 
 /**
+ * Page callback; formats and displays the embed code to paste on any site.
+ */
+function _ossap_stats_uva_embed_js($stat) {
+  drupal_add_http_header('Content-Type', 'text/javascript; charset=utf-8');
+  $aggregates = variable_get('ossap_stats_uva_aggregates', array());
+
+  // Prepares any available GetSatisfaction statistics.
+  $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
+
+  // Prepares any available Most visited statistics.
+  $most_visited_sites_in_day = variable_get('visited_sites_in_day', array());
+  $most_visited_sites_in_week = variable_get('visited_sites_in_week', array());
+  $most_visited_sites_in_month = variable_get('visited_sites_in_month', array());
+
+  // Prepares any available Most viewed statistics.
+  $most_viewed_pages_in_day = variable_get('viewed_pages_in_day', array());
+  $most_viewed_pages_in_week = variable_get('viewed_pages_in_week', array());
+  $most_viewed_pages_in_month = variable_get('viewed_pages_in_month', array());
+
+  // Prepares any available real time visitors statistics.
+  $real_time_visitors = current(variable_get('rt_visitors', array()));
+  $real_time_week = current(variable_get('rt_visitors_week', array()));
+  $real_time_month = current(variable_get('rt_visitors_month', array()));
+  $pv_time_week = current(variable_get('rt_pageview_week', array()));
+  $pv_time_month = current(variable_get('rt_pageview_month', array()));
+
+  // Prepares the activity messages.
+  $messages = '';
+  $activity = variable_get('ossap_stats_uva_activity', array());
+  if (isset($activity['messages']) && !empty($activity['messages'])) {
+    $count = variable_get('ossap_stats_embed_message_count', OSSAP_STATS_EMBED_MESSAGE_COUNT_DEFAULT);
+    $items = array_slice($activity['messages'], 0, $count);
+    $build = array(
+      '#theme' => 'item_list',
+      '#items' => $items,
+      '#attributes' => array('class' => array('ossap-stats-embed-messages')),
+    );
+    $messages = json_encode(drupal_render($build));
+  }
+  $variables = array(
+    'aggregates' => $aggregates,
+    'os_version' => _ossap_stats_get_os_version(),
+    'messages' => $messages,
+    'getsatisfaction' => $getsatisfaction,
+    //added variables for most_visited_sites and most_viewed_pages and real_time_visitors
+    'visited_sites_in_day' => $most_visited_sites_in_day,
+    'visited_sites_in_week' => $most_visited_sites_in_week,
+    'visited_sites_in_month' => $most_visited_sites_in_month,
+    'viewed_pages_in_day' => $most_viewed_pages_in_day,
+    'viewed_pages_in_week' => $most_viewed_pages_in_week,
+    'viewed_pages_in_month' => $most_viewed_pages_in_month,
+    'rt_visitors' => $real_time_visitors,
+    'rt_visitors_week' => $real_time_week,
+    'rt_visitors_month' => $real_time_month,
+    'rt_pageview_week' => $pv_time_week,
+    'rt_pageview_month' => $pv_time_month,
+  );
+   print theme('ossap_stats_embed_js', $variables);
+   exit;
+}
+
+/**
  * Implements hook_cron_queue_info().
  */
 function ossap_stats_cron_queue_info() {
@@ -548,23 +687,37 @@ function ossap_stats_cron() {
  * Cron worker callback for OSSAP stats.
  */
 function ossap_stats_block_worker($stat = '') {
+  $uva_domains = [
+    'uva.theopenscholar.com' => array(
+      'types' => array(
+        'personal',
+      ),
+      'domains' => array(
+        'uva.theopenscholar.com',
+      ),
+    ),
+  ];
   switch ($stat) {
     case 'sites':
       ossap_stats_sites_cron_worker();
+      ossap_stats_sites_cron_worker($uva_domains, 'ossap_stats_uva_aggregates');
       break;
     case 'getsatisfaction':
       ossap_stats_getsatisfaction_cron_worker();
       break;
     case 'activity':
       ossap_stats_activity_cron_worker();
+      ossap_stats_activity_cron_worker($uva_domains, 'ossap_stats_uva_activity');
       break;
     // Add a case statement in the cron worker function for
     //for most_visited_sites, most_viewed_pages and real_time visitors
     case 'visited_sites':
       ossap_stats_most_visited_sites_cron_worker();
+      ossap_stats_most_visited_sites_cron_worker('uva');
       break;
     case 'viewed_pages':
       ossap_stats_most_viewed_pages_cron_worker();
+      ossap_stats_most_viewed_pages_cron_worker('uva');
       break;
     /*
     case 'rt_visitors':
@@ -576,14 +729,17 @@ function ossap_stats_block_worker($stat = '') {
 
 /**
  * Cron worker callback for OSSAP most_visited_sites
+ *
+ * @param string $context
+ *   Allow multiple source (can be default|uva)
  */
-function ossap_stats_most_visited_sites_cron_worker(){
+function ossap_stats_most_visited_sites_cron_worker($context = 'default'){
   $function = 'ossap_stats_visited_sites';
   if (!function_exists($function)) {
     return;
   }
 
-  $most_visited_sites = $function();
+  $most_visited_sites = $function(FALSE, $context);
   if (!empty($most_visited_sites)) {
     variable_set('visited_sites_in_day', $most_visited_sites['day']);
     variable_set('visited_sites_in_week', $most_visited_sites['week']);
@@ -594,13 +750,13 @@ function ossap_stats_most_visited_sites_cron_worker(){
 /**
  * Cron worker callback for OSSAP most_viewed_sites
  */
-function ossap_stats_most_viewed_pages_cron_worker(){
+function ossap_stats_most_viewed_pages_cron_worker($context = 'default'){
   $function = 'ossap_stats_viewed_pages';
   if (!function_exists($function)) {
     return;
   }
 
-  $most_viewed_pages = $function();
+  $most_viewed_pages = $function(FALSE, $context);
   if (!empty($most_viewed_pages)) {
     variable_set('viewed_pages_in_day', $most_viewed_pages['day']);
     variable_set('viewed_pages_in_week', $most_viewed_pages['week']);
@@ -643,10 +799,12 @@ function ossap_stats_getsatisfaction_cron_worker() {
 /**
  * Cron queue worker to aggregate latest status messages.
  */
-function ossap_stats_activity_cron_worker() {
+function ossap_stats_activity_cron_worker($servers = [], $variable_name = 'ossap_stats_activity') {
   $activity = array();
 
-  $servers = variable_get('ossap_child_domains', array());
+  if (empty($servers)) {
+    $servers = variable_get('ossap_child_domains', array());
+  }
   $domains = array_keys($servers);
   $options = array();
   foreach ($domains as $domain) {
@@ -670,7 +828,7 @@ function ossap_stats_activity_cron_worker() {
       ksort($activity['messages'], SORT_NUMERIC);
       $activity['messages'] = array_reverse($activity['messages']);
     }
-    variable_set('ossap_stats_activity', $activity);
+    variable_set($variable_name, $activity);
   }
 }
 
@@ -679,12 +837,14 @@ function ossap_stats_activity_cron_worker() {
  *
  * Invokes drupal_http_request on each child server to get total sites stats.
  */
-function ossap_stats_sites_cron_worker() {
+function ossap_stats_sites_cron_worker($servers = [], $variable_name = 'ossap_stats_aggregates') {
   $aggregates = array();
 
   $stat_keys = array_keys(_os_stats_queries());
   $unsummable = array('filesize');
-  $servers = variable_get('ossap_child_domains', array());
+  if (empty($servers)) {
+    $servers = variable_get('ossap_child_domains', array());
+  }
   $domains = array_keys($servers);
   $options = array();
   foreach ($domains as $domain) {
@@ -707,7 +867,7 @@ function ossap_stats_sites_cron_worker() {
   }
 
   if (count($aggregates)) {
-    variable_set('ossap_stats_aggregates', $aggregates);
+    variable_set($variable_name, $aggregates);
   }
 }
 
@@ -780,4 +940,35 @@ function _ossap_stats_time_markup($timestamp) {
   }
 
   return $markup;
+}
+
+/**
+ * Get GoogleAnalytics credentials.
+ *
+ * @param string $context
+ *   Allow handle multiple credentials.
+ *
+ * @return array
+ */
+function ossap_stats_get_ga_credentials($context = 'default') {
+  $variable_map = [
+    'default' => [
+      'service_gmail' => 'ossap_stats_service_gmail',
+      'client_id' => 'ossap_stats_client_id',
+      'private_key_file_name' => 'ossap_stats_private_key_file_name',
+      'private_key_path_to_file' => 'ossap_stats_private_key_path_to_file',
+    ],
+    'uva' => [
+      'service_gmail' => 'ossap_stats_uva_service_gmail',
+      'client_id' => 'ossap_stats_uva_client_id',
+      'private_key_file_name' => 'ossap_stats_uva_private_key_file_name',
+      'private_key_path_to_file' => 'ossap_stats_uva_private_key_path_to_file',
+    ],
+  ];
+  return [
+    'service_gmail' => variable_get($variable_map[$context]['service_gmail']),
+    'client_id' => variable_get($variable_map[$context]['client_id']),
+    'private_key_file_name' => variable_get($variable_map[$context]['private_key_file_name']),
+    'private_key_path_to_file' => variable_get($variable_map[$context]['private_key_path_to_file']),
+  ];
 }
