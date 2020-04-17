@@ -15,16 +15,13 @@
 * returns the validated service object
 */
 
-function ossap_stats_check_credentials(){
+function ossap_stats_check_credentials($context = 'default'){
   //declare and set the variables
   $output ='';
   $access_type = 'offline_access';
   $scope = 'https://www.googleapis.com/auth/analytics.readonly';
-  $service_gmail = variable_get('ossap_stats_service_gmail');
-  $client_id = variable_get('ossap_stats_client_id');
-  $fname = variable_get('ossap_stats_private_key_file_name');
-  $fpath = variable_get('ossap_stats_private_key_path_to_file');
-  $fpkey = $fpath.'/'.$fname.'';
+  $credentials = ossap_stats_get_ga_credentials($context);
+  $fpkey = $credentials['private_key_path_to_file'] .'/' .$credentials['private_key_file_name'] . '';
 
   //create a new instance of Google_client
   $client = new Google_Client();
@@ -32,9 +29,9 @@ function ossap_stats_check_credentials(){
   $client->setApplicationName('OSSAP Stats');
 
   //create the credentials object to be sent to google analytics
-  $client->setAssertionCredentials(new Google_AssertionCredentials($service_gmail, array($scope),
+  $client->setAssertionCredentials(new Google_AssertionCredentials($credentials['service_gmail'], array($scope),
                                    file_get_contents($fpkey)));
-  $client->setClientId($client_id);
+  $client->setClientId($credentials['client_id']);
   $client->setAccessType($access_type);
   $client->getAccessToken();
 
@@ -50,10 +47,11 @@ function ossap_stats_check_credentials(){
 * parameters = $type which could be a pageview or visits
 * taps into google analytics and retrieves the results for
 * most frequent page views and page visited
+* $context allows to select multiple source
 * returns the pageviews and visit object
 */
 
-function ossap_stats_design_output($type){
+function ossap_stats_design_output($type, $context = 'default'){
  //declare and set the variables
   $output ='';
   $app_name = 'OSSAP Statistics';
@@ -70,7 +68,7 @@ function ossap_stats_design_output($type){
   $monthlyStartDate = date('Y-m-d', strtotime('- 31 day'));
 
   //get credentials
-  $service = ossap_stats_check_credentials();
+  $service = ossap_stats_check_credentials($context);
 
   //max_results is set to 28
   $max_results = 28;
