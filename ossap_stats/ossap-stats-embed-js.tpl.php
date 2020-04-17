@@ -11,7 +11,7 @@
  * values.
  */
 
-$src = url('ossap/stats.js', array('absolute' => TRUE));
+$src = url($stats_js_path, array('absolute' => TRUE));
 
 if (isset($os_version)) {
   $aggregates['os_version'] = $os_version;
@@ -102,7 +102,7 @@ if (empty($aggregates)) {
  * @see https://github.com/openscholar/ossap
  */
 function ossapRealtimeStatsRefresh() {
-  var realtimeUrl = '/ossap/real-time-visitors';
+  var realtimeUrl = '<?php echo $realtime_visitors_url ?>';
   var updateInterval = 2000;
   var fetchInterval = 15000;
   var realtimeDivId = ".ossap-stats-real-time-visitors";
