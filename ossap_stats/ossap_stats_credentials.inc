@@ -117,14 +117,18 @@ function ossap_stats_design_output($type, $context = 'default'){
 * taps into google analytics and retrieves the results for
 * users that are currently active
 */
-function ossap_stats_return_users(){
+function ossap_stats_return_users($context = 'default'){
   //declare variables
   $dimensions = 'rt:source';
   $rt_users = 'rt:activeUsers';
-  $analytics_id = variable_get('ossap_stats_analytics_id');
+  $variable_name = 'ossap_stats_analytics_id';
+  if ($context == 'uva') {
+    $variable_name = 'ossap_stats_uva_analytics_id';
+  }
+  $analytics_id = variable_get($variable_name);
 
   //validate the credentials
-  $service = ossap_stats_check_credentials();
+  $service = ossap_stats_check_credentials($context);
   //set the optional parameters
   $optparams = array ('dimensions' => $dimensions);
 
