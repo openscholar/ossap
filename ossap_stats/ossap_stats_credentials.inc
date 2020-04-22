@@ -57,7 +57,7 @@ function ossap_stats_design_output($type, $context = 'default'){
   $app_name = 'OSSAP Statistics';
   $metrics_pageviews = 'ga:pageviews';
   $sort_pageviews = '-ga:pageviews';
-  $analytics_id = variable_get('ossap_stats_analytics_id');
+  $analytics_id = _ossap_stats_get_analytics_id($context);
 
   //set start and end dates for day, week and month
   //start and end dates for day are same. For week start date is 8 days before
@@ -121,11 +121,7 @@ function ossap_stats_return_users($context = 'default'){
   //declare variables
   $dimensions = 'rt:source';
   $rt_users = 'rt:activeUsers';
-  $variable_name = 'ossap_stats_analytics_id';
-  if ($context == 'uva') {
-    $variable_name = 'ossap_stats_uva_analytics_id';
-  }
-  $analytics_id = variable_get($variable_name);
+  $analytics_id = _ossap_stats_get_analytics_id($context);
 
   //validate the credentials
   $service = ossap_stats_check_credentials($context);
@@ -137,4 +133,18 @@ function ossap_stats_return_users($context = 'default'){
 
   //return the results
   return $results;
+}
+
+/**
+ * @param $context
+ *
+ * @return mixed|string|null
+ */
+function _ossap_stats_get_analytics_id($context) {
+  $variable_name = 'ossap_stats_analytics_id';
+  if ($context == 'uva') {
+    $variable_name = 'ossap_stats_uva_analytics_id';
+  }
+  $analytics_id = variable_get($variable_name);
+  return $analytics_id;
 }
