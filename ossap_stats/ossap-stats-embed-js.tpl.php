@@ -136,7 +136,11 @@ function ossapRealtimeStatsRefresh() {
     } else {
       // Add random -10 to 10 people.
       var plusOrMinus = Math.random() < 0.5 ? -5 : 5;
-      $(realtimeDivId).text(parseInt($(realtimeDivId).text().replace(/,/g, ''), 10) + Math.floor(Math.random() * plusOrMinus)).OSAddCommas();
+      var randomVisitor = parseInt($(realtimeDivId).text().replace(/,/g, ''), 10) + Math.floor(Math.random() * plusOrMinus);
+      if (randomVisitor < 0) {
+        randomVisitor = 0;
+      }
+      $(realtimeDivId).text(randomVisitor).OSAddCommas();
 
       var Vinterval = Math.floor(parseInt($(weeklyVisitorsDivId).text().replace(/,/g, ''), 10) / 7 / 24 / 60 / 30);
       var PVinterval = Math.floor(parseInt($(weeklyPageViewsDivId).text().replace(/,/g, ''), 10) / 7 / 24 / 60 / 30);
