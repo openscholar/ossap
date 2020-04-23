@@ -210,6 +210,13 @@ function ossap_stats_uva_settings_form($form_state){
     '#description' => t('Add Analytics Id here'),
    );
 
+   $form['ossap_stats_settings']['ossap_stats_uva_source_domain'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Source domain'),
+    '#default_value' => variable_get('ossap_stats_uva_source_domain'),
+    '#description' => t('Optional domain for the source data. Otherwise it will be relative (leave it blank).'),
+   );
+
   return system_settings_form($form);
 }
 
@@ -725,8 +732,8 @@ function _ossap_stats_uva_embed_js($stat) {
   }
   $variables = array(
     'aggregates' => $aggregates,
-    'realtime_visitors_url' => '/ossap/real-time-visitors-uva',
-    'stats_js_path' => 'ossap/stats-uva.js',
+    'realtime_visitors_url' => variable_get('ossap_stats_uva_source_domain', '') . '/ossap/real-time-visitors-uva',
+    'stats_js_path' => variable_get('ossap_stats_uva_source_domain', '') . '/ossap/stats-uva.js',
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
