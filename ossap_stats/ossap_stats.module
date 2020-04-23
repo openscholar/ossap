@@ -725,8 +725,8 @@ function _ossap_stats_uva_embed_js($stat) {
   }
   $variables = array(
     'aggregates' => $aggregates,
-    'realtime_visitors_url' => '/ossap/real-time-visitors-uva',
-    'stats_js_path' => 'ossap/stats-uva.js',
+    'realtime_visitors_url' => 'https://osops.d7.theopenscholar.com/ossap/real-time-visitors-uva',
+    'stats_js_path' => 'https://osops.d7.theopenscholar.com/ossap/stats-uva.js',
     'os_version' => _ossap_stats_get_os_version(),
     'messages' => $messages,
     'getsatisfaction' => $getsatisfaction,
