@@ -460,8 +460,8 @@ function ossap_stats_rt_visitors_uva($output_json = FALSE){
     }
 
     if(is_array($results)) {
-      $data = $results['rows'][0][0];
-      $rt_stats = array_merge(array(" ".time() => $data),$rt_stats);
+      $data = $results['rows'][0][0] ?? "0";
+      $rt_stats = array_merge(array(" ".time() => $data), $rt_stats);
       variable_set('rt_visitors_uva', array_slice($rt_stats, 0, 15, true));
     }
   }
@@ -694,21 +694,21 @@ function _ossap_stats_uva_embed_js($stat) {
   $getsatisfaction = variable_get('ossap_stats_getsatisfaction', array());
 
   // Prepares any available Most visited statistics.
-  $most_visited_sites_in_day = variable_get('visited_sites_in_day', array());
-  $most_visited_sites_in_week = variable_get('visited_sites_in_week', array());
-  $most_visited_sites_in_month = variable_get('visited_sites_in_month', array());
+  $most_visited_sites_in_day = variable_get('visited_sites_in_day_uva', array());
+  $most_visited_sites_in_week = variable_get('visited_sites_in_week_uva', array());
+  $most_visited_sites_in_month = variable_get('visited_sites_in_month_uva', array());
 
   // Prepares any available Most viewed statistics.
-  $most_viewed_pages_in_day = variable_get('viewed_pages_in_day', array());
-  $most_viewed_pages_in_week = variable_get('viewed_pages_in_week', array());
-  $most_viewed_pages_in_month = variable_get('viewed_pages_in_month', array());
+  $most_viewed_pages_in_day = variable_get('viewed_pages_in_day_uva', array());
+  $most_viewed_pages_in_week = variable_get('viewed_pages_in_week_uva', array());
+  $most_viewed_pages_in_month = variable_get('viewed_pages_in_month_uva', array());
 
   // Prepares any available real time visitors statistics.
-  $real_time_visitors = current(variable_get('rt_visitors', array()));
-  $real_time_week = current(variable_get('rt_visitors_week', array()));
-  $real_time_month = current(variable_get('rt_visitors_month', array()));
-  $pv_time_week = current(variable_get('rt_pageview_week', array()));
-  $pv_time_month = current(variable_get('rt_pageview_month', array()));
+  $real_time_visitors = current(variable_get('rt_visitors_uva', array()));
+  $real_time_week = current(variable_get('rt_visitors_uva_week', array()));
+  $real_time_month = current(variable_get('rt_visitors_uva_month', array()));
+  $pv_time_week = current(variable_get('rt_pageview_uva_week', array()));
+  $pv_time_month = current(variable_get('rt_pageview_uva_month', array()));
 
   // Prepares the activity messages.
   $messages = '';
@@ -831,9 +831,18 @@ function ossap_stats_most_visited_sites_cron_worker($context = 'default'){
 
   $most_visited_sites = $function(FALSE, $context);
   if (!empty($most_visited_sites)) {
-    variable_set('visited_sites_in_day', $most_visited_sites['day']);
-    variable_set('visited_sites_in_week', $most_visited_sites['week']);
-    variable_set('visited_sites_in_month', $most_visited_sites['month']);
+    switch ($context) {
+      case 'uva':
+        variable_set('visited_sites_in_day_uva', $most_visited_sites['day']);
+        variable_set('visited_sites_in_week_uva', $most_visited_sites['week']);
+        variable_set('visited_sites_in_month_uva', $most_visited_sites['month']);
+        break;
+      default:
+        variable_set('visited_sites_in_day', $most_visited_sites['day']);
+        variable_set('visited_sites_in_week', $most_visited_sites['week']);
+        variable_set('visited_sites_in_month', $most_visited_sites['month']);
+        break;
+    }
   }
 }
 
@@ -848,9 +857,18 @@ function ossap_stats_most_viewed_pages_cron_worker($context = 'default'){
 
   $most_viewed_pages = $function(FALSE, $context);
   if (!empty($most_viewed_pages)) {
-    variable_set('viewed_pages_in_day', $most_viewed_pages['day']);
-    variable_set('viewed_pages_in_week', $most_viewed_pages['week']);
-    variable_set('viewed_pages_in_month', $most_viewed_pages['month']);
+    switch ($context) {
+      case 'uva':
+        variable_set('viewed_pages_in_day_uva', $most_viewed_pages['day']);
+        variable_set('viewed_pages_in_week_uva', $most_viewed_pages['week']);
+        variable_set('viewed_pages_in_month_uva', $most_viewed_pages['month']);
+        break;
+      default:
+        variable_set('viewed_pages_in_day', $most_viewed_pages['day']);
+        variable_set('viewed_pages_in_week', $most_viewed_pages['week']);
+        variable_set('viewed_pages_in_month', $most_viewed_pages['month']);
+        break;
+    }
   }
 }
 
